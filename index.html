@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MotionSphere — Marketplace Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --blue1:#2376ff;
+      --blue2:#56ccf2;
+      --glass: rgba(255,255,255,0.75);
+    }
+    body{
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #f3f8ff 0%, #ffffff 100%);
+      color:#0f1724;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    h1,h2,h3,h4{ font-family: 'Poppins', sans-serif; }
+    .glass {
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(15,23,36,0.04);
+      box-shadow: 0 6px 24px rgba(15,23,36,0.06);
+    }
+    .accent {
+      background: linear-gradient(90deg, var(--blue1), var(--blue2));
+      color:white;
+    }
+    .btn-accent {
+      @apply px-4 py-2 rounded-lg font-medium;
+      background: linear-gradient(90deg,var(--blue1),var(--blue2));
+      color:white;
+      box-shadow: 0 8px 30px rgba(37,118,255,0.12);
+    }
+    /* subtle animations */
+    .fade-in { animation: fadeIn .36s ease both; }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(6px);} to {opacity:1; transform:none;} }
+    /* small helpers */
+    .muted { color:#6b7280; }
+    .chip { @apply text-sm px-3 py-1 rounded-full border; border-color:rgba(15,23,36,0.06); background:white; }
+    /* item card hover */
+    .item-card:hover{ transform: translateY(-6px); box-shadow: 0 18px 40px rgba(15,23,36,0.06); transition: all .18s ease; }
+    /* mobile spacing */
+    @media(min-width:768px){
+      .container-md{ max-width:1100px; margin-left:auto;margin-right:auto; }
+    }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- NAV -->
+  <header class="glass sticky top-4 z-50 mx-4 md:mx-8 rounded-2xl p-3 md:p-4 flex items-center justify-between gap-4 shadow">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center accent">
+        <span class="font-bold tracking-tight">MotionSpeher3DArt</span>
+      </div>
+      <div>
+        <div class="font-bold">MotionSphere</div>
+        <div class="text-xs muted">Marketplace & Showcase for Creators</div>
+      </div>
+    </div>
+
+    <nav class="hidden md:flex items-center gap-4 text-sm">
+      <a href="#home" class="nav-link px-3 py-2 rounded-md hover:bg-blue-50">Home</a>
+      <a href="#marketplace" class="nav-link px-3 py-2 rounded-md hover:bg-blue-50">Marketplace</a>
+      <a href="#showcase" class="nav-link px-3 py-2 rounded-md hover:bg-blue-50">Showcase</a>
+      <a href="#upload" class="nav-link px-3 py-2 rounded-md hover:bg-blue-50">Upload</a>
+      <a href="#about" class="nav-link px-3 py-2 rounded-md hover:bg-blue-50">About</a>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <div id="navRight" class="flex items-center gap-3"></div>
+      <button id="openAuthTop" class="hidden md:inline btn-accent rounded-lg">Login / Register</button>
+      <button id="openAuthTop2" class="md:hidden p-2 rounded-md bg-white/80">👤</button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container-md px-4 md:px-8 mt-8 space-y-8">
+
+    <!-- HERO (Home) -->
+    <section id="home" class="grid md:grid-cols-2 gap-8 items-center">
+      <div class="space-y-6">
+        <h1 class="text-3xl md:text-5xl font-bold leading-tight">Create · Sell · Inspire — Marketplace buat kreator motion</h1>
+        <p class="muted max-w-xl">Upload template motion graphics, 3D models, musik & SFX. Jual sebagai single asset atau bundle. Show your work, find collaborators, and earn.</p>
+
+        <div class="flex gap-3">
+          <button class="btn-accent rounded-lg" id="btnExplore">Eksplor Marketplace</button>
+          <button class="px-4 py-2 rounded-lg border" id="btnShowcase">Lihat Showcase</button>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mt-2">
+          <div class="chip">Template</div>
+          <div class="chip">Motion</div>
+          <div class="chip">3D Model</div>
+          <div class="chip">Music</div>
+          <div class="chip">SFX</div>
+          <div class="chip">Bundle</div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-4 fade-in">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="text-sm muted">Marketplace</div>
+            <div class="text-lg font-semibold" id="homeCount">Menampilkan 0 item</div>
+          </div>
+          <div class="text-right">
+            <div class="text-sm muted">Saldo kamu</div>
+            <div class="font-semibold" id="homeBalance">IDR 0</div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <input id="homeSearch" placeholder="Cari asset, tag, author..." class="w-full rounded-md border px-3 py-2">
+          <div class="flex gap-2">
+            <select id="homeCat" class="rounded-md border px-3 py-2">
+              <option value="">Semua Kategori</option>
+              <option value="template">Template</option>
+              <option value="motion">Motion</option>
+              <option value="3d">3D</option>
+              <option value="music">Music</option>
+              <option value="sfx">SFX</option>
+              <option value="bundle">Bundle</option>
+            </select>
+            <select id="homeSort" class="rounded-md border px-3 py-2">
+              <option value="new">Terbaru</option>
+              <option value="price_asc">Harga: murah → mahal</option>
+              <option value="price_desc">Harga: mahal → murah</option>
+            </select>
+            <button id="homeSearchBtn" class="px-4 py-2 rounded-md border">Cari</button>
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 md:grid-cols-1 gap-3">
+          <div class="flex items-center gap-3">
+            <img id="hdrAvatar" src="https://picsum.photos/seed/avatar/200" alt="avatar" class="w-14 h-14 rounded-lg object-cover border">
+            <div>
+              <div id="hdrName" class="font-semibold">Guest</div>
+              <div id="hdrEmail" class="muted text-xs">Belum login</div>
+            </div>
+          </div>
+          <div class="flex gap-2 justify-end">
+            <button class="px-3 py-2 rounded-md border" id="quickGuest">Guest</button>
+            <button class="px-3 py-2 rounded-md btn-accent" id="openAuth">Login/Register</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MARKETPLACE -->
+    <section id="marketplace" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold">Marketplace</h2>
+        <div class="flex items-center gap-3">
+          <div class="muted text-sm" id="totalCount">Menampilkan 0 items</div>
+          <button class="px-3 py-2 rounded-md border" id="btnUploadNav">Upload Asset</button>
+        </div>
+      </div>
+
+      <div id="itemsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+
+      <div id="previewArea" class="glass rounded-2xl p-4 muted text-center">Klik item untuk preview dan beli.</div>
+    </section>
+
+    <!-- SHOWCASE -->
+    <section id="showcase" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold">Showcase — karya & project</h2>
+        <div class="flex items-center gap-3">
+          <button id="openShowAdd" class="px-3 py-2 rounded-md border">Submit Karya</button>
+        </div>
+      </div>
+
+      <div id="showcaseGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- UPLOAD -->
+    <section id="upload" class="space-y-4">
+      <h2 class="text-xl font-semibold">Upload Asset</h2>
+      <div class="glass rounded-2xl p-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium">Kategori</label>
+            <select id="upCat" class="w-full rounded-md border px-3 py-2">
+              <option value="template">Template (motion)</option>
+              <option value="motion">Motion (loop, VJ)</option>
+              <option value="3d">3D Model</option>
+              <option value="music">Music</option>
+              <option value="sfx">SFX</option>
+              <option value="bundle">Bundle (multiple files)</option>
+            </select>
+
+            <label class="block text-sm font-medium mt-3">Judul</label>
+            <input id="upTitle" class="w-full rounded-md border px-3 py-2" placeholder="Judul asset">
+
+            <label class="block text-sm font-medium mt-3">Harga (IDR)</label>
+            <input id="upPrice" type="number" class="w-full rounded-md border px-3 py-2" placeholder="e.g. 45000">
+
+            <label class="block text-sm font-medium mt-3">Deskripsi</label>
+            <textarea id="upDesc" rows="3" class="w-full rounded-md border px-3 py-2" placeholder="Deskripsi singkat..."></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium">Pilih file (image/video/zip/mp3/obj...)</label>
+            <input id="upFile" type="file" class="w-full mt-2" multiple>
+
+            <div class="mt-4">
+              <label class="text-sm font-medium">Thumbnail (opsional)</label>
+              <input id="upThumb" type="file" accept="image/*" class="w-full mt-2">
+            </div>
+
+            <div class="mt-6 flex gap-2 justify-end">
+              <button id="btnResetData" class="px-4 py-2 rounded-md border">Reset Demo</button>
+              <button id="btnUpload" class="btn-accent rounded-lg">Upload</button>
+            </div>
+          </div>
+        </div>
+        <div class="muted text-xs mt-3">Login sebagai creator supaya bisa upload. Semua data disimpan di browser (localStorage) — prototipe.</div>
+      </div>
+    </section>
+
+    <!-- ABOUT / FOOTER -->
+    <section id="about" class="py-6">
+      <div class="glass rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <div class="font-semibold text-lg">MotionSphere Studio</div>
+          <div class="muted">Prototype marketplace — buat kreator tukar & jual aset digital</div>
+        </div>
+        <div class="muted text-sm">© <span id="year"></span> MotionSphere • Demo lokal (not for production)</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modals: Auth, Purchases, Show Add -->
+  <div id="modalAuth" class="fixed inset-0 hidden items-center justify-center z-50 bg-black/40 p-4">
+    <div class="bg-white rounded-2xl w-full max-w-xl p-6 glass">
+      <div class="flex items-center justify-between">
+        <div class="text-lg font-semibold" id="modalTitle">Login</div>
+        <div><button id="closeAuth" class="px-3 py-1 rounded-md border">Close</button></div>
+      </div>
+
+      <div class="tabs mt-4 flex gap-2">
+        <button id="tabLogin" class="px-3 py-1 rounded-md bg-blue-50">Login</button>
+        <button id="tabReg" class="px-3 py-1 rounded-md">Register</button>
+      </div>
+
+      <div id="loginPanel" class="mt-4">
+        <input id="liUser" class="w-full rounded-md border px-3 py-2" placeholder="username">
+        <input id="liPass" type="password" class="w-full rounded-md border px-3 py-2 mt-2" placeholder="password">
+        <div class="flex justify-between items-center mt-3">
+          <div class="text-xs muted">Demo creds: demo / demo</div>
+          <div class="flex gap-2">
+            <button id="btnGuestModal" class="px-3 py-1 rounded-md border">Guest</button>
+            <button id="btnLogin" class="btn-accent rounded-md">Login</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="regPanel" class="mt-4 hidden">
+        <input id="rgUser" class="w-full rounded-md border px-3 py-2" placeholder="username">
+        <input id="rgEmail" class="w-full rounded-md border px-3 py-2 mt-2" placeholder="email">
+        <input id="rgPass" type="password" class="w-full rounded-md border px-3 py-2 mt-2" placeholder="password">
+        <div class="flex justify-end mt-3">
+          <button id="btnReg" class="btn-accent rounded-md">Register</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Purchases modal -->
+  <div id="modalPurch" class="fixed inset-0 hidden items-center justify-center z-40 bg-black/40 p-4">
+    <div class="glass bg-white rounded-2xl max-w-3xl w-full p-6">
+      <div class="flex items-center justify-between">
+        <div class="font-semibold">Purchase History</div>
+        <div><button id="closePurch" class="px-3 py-1 rounded-md border">Close</button></div>
+      </div>
+      <div id="purchasesList" class="mt-4 space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- Show Add modal -->
+  <div id="modalShowAdd" class="fixed inset-0 hidden items-center justify-center z-40 bg-black/40 p-4">
+    <div class="glass bg-white rounded-2xl max-w-2xl w-full p-6">
+      <div class="flex items-center justify-between">
+        <div class="font-semibold">Submit Showcase</div>
+        <div><button id="closeShowAdd" class="px-3 py-1 rounded-md border">Close</button></div>
+      </div>
+      <div class="mt-4 space-y-3">
+        <input id="showTitle" class="w-full rounded-md border px-3 py-2" placeholder="Judul proyek / karya">
+        <input id="showAuthor" class="w-full rounded-md border px-3 py-2" placeholder="Nama / author">
+        <textarea id="showDesc" class="w-full rounded-md border px-3 py-2" rows="4" placeholder="Deskripsi karya"></textarea>
+        <input id="showUrl" class="w-full rounded-md border px-3 py-2" placeholder="URL (opsional) atau file preview">
+        <div class="flex justify-end">
+          <button id="btnShowSubmit" class="btn-accent rounded-md">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 hidden z-50"></div>
+
+<script>
+/* --------------------------
+  Basic localStorage seeds & keys
+---------------------------*/
+const K_USERS = 'ms_users';
+const K_ITEMS = 'ms_items';
+const K_CURR = 'ms_current';
+const K_PUR = 'ms_purchases';
+const K_SHOW = 'ms_showcase';
+
+function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
+
+function seedIfEmpty(){
+  if(!localStorage.getItem(K_ITEMS)){
+    const demo = [
+      {id:uid(), title:'VJ Neon Pack', cat:'motion', price:35000, desc:'Loop visuals pack', fileType:'img', data:'https://picsum.photos/seed/vj/800/500', thumb:'https://picsum.photos/seed/vj/400/240', author:'demo', created:Date.now()},
+      {id:uid(), title:'City Timelapse', cat:'motion', price:28000, desc:'Short timelapse clip', fileType:'video', data:'https://picsum.photos/seed/city/800/500', thumb:'https://picsum.photos/seed/city/400/240', author:'demo', created:Date.now()},
+      {id:uid(), title:'Character Template', cat:'template', price:45000, desc:'AE character rig', fileType:'file', data:'template.zip (demo)', thumb:'https://picsum.photos/seed/char/400/240', author:'demo', created:Date.now()},
+      {id:uid(), title:'Portrait Photo', cat:'sfx', price:7000, desc:'Stock portrait (demo)', fileType:'img', data:'https://picsum.photos/seed/por/800/500', thumb:'https://picsum.photos/seed/por/400/240', author:'demo', created:Date.now()},
+      {id:uid(), title:'Lowpoly Robot', cat:'3d', price:60000, desc:'.blend model (demo)', fileType:'file', data:'robot.blend (demo)', thumb:'https://picsum.photos/seed/rob/400/240', author:'demo', created:Date.now()}
+    ];
+    localStorage.setItem(K_ITEMS, JSON.stringify(demo));
+  }
+  if(!localStorage.getItem(K_USERS)){
+    const demoUsers = [{username:'demo', email:'demo@ms', pass:'demo', display:'Demo Creator', photo:'https://picsum.photos/seed/demo/200', bio:'I make motion art', balance:0}];
+    localStorage.setItem(K_USERS, JSON.stringify(demoUsers));
+  }
+  if(!localStorage.getItem(K_PUR)) localStorage.setItem(K_PUR, JSON.stringify([]));
+  if(!localStorage.getItem(K_SHOW)) localStorage.setItem(K_SHOW, JSON.stringify([]));
+}
+seedIfEmpty();
+
+/* --------------------------
+  App state & elements
+---------------------------*/
+let items = JSON.parse(localStorage.getItem(K_ITEMS) || '[]');
+let users = JSON.parse(localStorage.getItem(K_USERS) || '[]');
+
+const itemsGrid = document.getElementById('itemsGrid');
+const totalCount = document.getElementById('totalCount');
+const previewArea = document.getElementById('previewArea');
+const homeCount = document.getElementById('homeCount');
+const homeBalance = document.getElementById('homeBalance');
+const hdrName = document.getElementById('hdrName');
+const hdrEmail = document.getElementById('hdrEmail');
+const hdrAvatar = document.getElementById('hdrAvatar');
+const navRight = document.getElementById('navRight');
+const yearSpan = document.getElementById('year'); yearSpan.textContent = new Date().getFullYear();
+
+/* helpers */
+function saveItems(){ localStorage.setItem(K_ITEMS, JSON.stringify(items)); }
+function saveUsers(){ localStorage.setItem(K_USERS, JSON.stringify(users)); }
+function getCurrent(){ return JSON.parse(localStorage.getItem(K_CURR) || 'null'); }
+function setCurrent(u){ localStorage.setItem(K_CURR, JSON.stringify(u)); renderHeader(); renderUserBalance(); renderUserState(); }
+function clearCurrent(){ localStorage.removeItem(K_CURR); renderHeader(); renderUserBalance(); renderUserState(); }
+function toast(msg, t=2600){ const el = document.createElement('div'); el.className='glass p-3 rounded-md mb-2 shadow'; el.textContent = msg; const box = document.getElementById('toast'); box.appendChild(el); box.classList.remove('hidden'); setTimeout(()=>{ el.remove(); if(!box.children.length) box.classList.add('hidden'); }, t); }
+
+/* --------------------------
+  Render header & user area
+---------------------------*/
+function renderHeader(){
+  const cur = getCurrent();
+  navRight.innerHTML = '';
+  if(cur){
+    const wrap = document.createElement('div'); wrap.className='flex items-center gap-3';
+    const bal = document.createElement('div'); bal.className='text-sm muted'; bal.textContent = `Hi, ${cur.display||cur.username}`;
+    const profBtn = document.createElement('button'); profBtn.className='px-3 py-1 rounded-md border'; profBtn.textContent='Profile'; profBtn.addEventListener('click', openProfileModal);
+    const cartBtn = document.createElement('button'); cartBtn.className='px-3 py-1 rounded-md border'; cartBtn.textContent='Purchases'; cartBtn.addEventListener('click', openPurchases);
+    wrap.append(bal, profBtn, cartBtn);
+    navRight.appendChild(wrap);
+    document.getElementById('openAuthTop').textContent = 'Logout';
+    document.getElementById('openAuthTop').onclick = ()=> { clearCurrent(); toast('Logged out'); };
+  } else {
+    document.getElementById('openAuthTop').textContent = 'Login / Register';
+    document.getElementById('openAuthTop').onclick = ()=> openAuthModal();
+    const btn = document.createElement('button'); btn.className='px-3 py-1 rounded-md border'; btn.textContent='Login'; btn.addEventListener('click', openAuthModal);
+    navRight.appendChild(btn);
+  }
+  // header mini
+  const cur2 = getCurrent();
+  hdrName.textContent = cur2? (cur2.display || cur2.username) : 'Guest';
+  hdrEmail.textContent = cur2? (cur2.email || '') : 'Belum login';
+  hdrAvatar.src = cur2? (cur2.photo || `https://picsum.photos/seed/${cur2.username}/200`) : 'https://picsum.photos/seed/avatar/200';
+}
+renderHeader();
+
+/* user balance display */
+function renderUserBalance(){
+  const cur = getCurrent();
+  homeBalance.textContent = cur? `IDR ${cur.balance || 0}` : 'IDR 0';
+}
+
+/* user state actions */
+function renderUserState(){
+  const cur = getCurrent();
+  if(cur){
+    document.getElementById('openAuthTop2').style.display = 'none';
+  } else {
+    document.getElementById('openAuthTop2').style.display = 'inline-block';
+  }
+}
+renderUserBalance(); renderUserState();
+
+/* --------------------------
+  Render items grid
+---------------------------*/
+let currentFilter = '';
+function renderItems(){
+  items = JSON.parse(localStorage.getItem(K_ITEMS) || '[]');
+  const q = (document.getElementById('homeSearch').value || '').toLowerCase();
+  const cat = document.getElementById('homeCat').value;
+  const sort = document.getElementById('homeSort').value;
+  let list = items.filter(it => {
+    if(cat && it.cat !== cat) return false;
+    if(q && !(it.title.toLowerCase().includes(q) || (it.desc||'').toLowerCase().includes(q) || (it.author||'').toLowerCase().includes(q))) return false;
+    return true;
+  });
+  if(sort === 'price_asc') list.sort((a,b)=>a.price-b.price);
+  if(sort === 'price_desc') list.sort((a,b)=>b.price-a.price);
+  if(sort === 'new') list.sort((a,b)=>b.created - a.created);
+  itemsGrid.innerHTML = '';
+  totalCount.textContent = `Menampilkan ${list.length} item`;
+  homeCount.textContent = `Menampilkan ${list.length} item`;
+  list.forEach(it => {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl p-3 item-card hover:shadow-md transform transition cursor-pointer';
+    card.innerHTML = `
+      <div class="w-full h-40 rounded-lg overflow-hidden bg-gray-100 mb-3">
+        <img src="${it.thumb||it.data}" alt="${it.title}" class="w-full h-full object-cover">
+      </div>
+      <div>
+        <div class="flex justify-between items-start gap-2">
+          <div>
+            <div class="font-semibold">${it.title}</div>
+            <div class="text-xs muted">${it.cat} • ${it.author}</div>
+          </div>
+          <div class="text-right">
+            <div class="font-semibold">IDR ${it.price}</div>
+            <div class="text-xs muted">•</div>
+          </div>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', ()=> previewItem(it));
+    itemsGrid.appendChild(card);
+  });
+}
+renderItems();
+
+/* preview & buy flow */
+function previewItem(it){
+  const cur = getCurrent();
+  previewArea.innerHTML = '';
+  const wrap = document.createElement('div'); wrap.className='grid md:grid-cols-3 gap-4 items-start';
+  const media = document.createElement('div'); media.className='md:col-span-1';
+  if(it.fileType === 'img') media.innerHTML = `<img src="${it.data}" class="w-full rounded-lg object-cover">`;
+  else if(it.fileType === 'video') media.innerHTML = `<video src="${it.data}" controls class="w-full rounded-lg"></video>`;
+  else media.innerHTML = `<div class="w-full h-40 rounded-lg bg-gray-100 flex items-center justify-center muted">${it.fileType.toUpperCase()} file</div>`;
+  const info = document.createElement('div'); info.className='md:col-span-2';
+  info.innerHTML = `
+    <div class="flex justify-between items-start">
+      <div>
+        <div class="text-lg font-semibold">${it.title}</div>
+        <div class="muted text-sm">${it.desc}</div>
+        <div class="mt-2 text-xs muted">oleh ${it.author}</div>
+      </div>
+      <div class="text-right">
+        <div class="text-xl font-semibold">IDR ${it.price}</div>
+        <div class="mt-3 flex gap-2">
+          <button id="btnBuy" class="btn-accent rounded-md">Beli Sekarang</button>
+          <button id="btnAddCart" class="px-3 py-2 rounded-md border">Simpan</button>
+        </div>
+      </div>
+    </div>
+  `;
+  wrap.append(media, info);
+  previewArea.appendChild(wrap);
+
+  document.getElementById('btnBuy').addEventListener('click', ()=>{
+    const cur = getCurrent();
+    if(!cur) return alert('Login dulu untuk membeli.');
+    // Create pending purchase
+    localStorage.setItem('ms_pending', JSON.stringify({itemId:it.id, buyer:cur.username, amount:it.price}));
+    document.getElementById('homeSearch').value = '';
+    document.getElementById('homeCat').value = '';
+    document.getElementById('homeSort').value = 'new';
+    // prefill payment panel by scrolling to payment (we have no dedicated panel, so show an alert and open purchases)
+    alert('Pembelian pending dibuat. Buka panel "Purchases" untuk konfirmasi transfer (demo).');
+    openPurchases();
+  });
+}
+
+/* --------------------------
+  Upload logic
+---------------------------*/
+document.getElementById('btnUpload').addEventListener('click', ()=>{
+  const cur = getCurrent();
+  if(!cur) return alert('Login sebagai creator untuk upload.');
+  const cat = document.getElementById('upCat').value;
+  const title = document.getElementById('upTitle').value.trim();
+  const price = Number(document.getElementById('upPrice').value) || 0;
+  const desc = document.getElementById('upDesc').value.trim();
+  const files = document.getElementById('upFile').files;
+  const thumbFile = document.getElementById('upThumb').files[0];
+
+  if(!title || !files.length) return alert('Judul & file wajib.');
+  // read first file as dataURL for demo (if image/video) else mark as file
+  const primary = files[0];
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const data = ev.target.result;
+    let ft = 'file';
+    if(primary.type.startsWith('image/')) ft = 'img';
+    else if(primary.type.startsWith('video/')) ft = 'video';
+    const newIt = {id:uid(), title, cat, price, desc, fileType:ft, data, thumb:'', author:cur.username, created:Date.now()};
+    // read thumb if provided
+    if(thumbFile){
+      const r2 = new FileReader();
+      r2.onload = e2 => {
+        newIt.thumb = e2.target.result;
+        items.unshift(newIt); saveItems(); renderItems(); toast('Upload sukses (disimpan di browser).');
+        // clear inputs
+        document.getElementById('upTitle').value=''; document.getElementById('upDesc').value=''; document.getElementById('upPrice').value=''; document.getElementById('upFile').value=''; document.getElementById('upThumb').value='';
+      };
+      r2.readAsDataURL(thumbFile);
+    } else {
+      newIt.thumb = (ft==='img')? data : 'https://picsum.photos/400/240?random='+Math.random();
+      items.unshift(newIt); saveItems(); renderItems(); toast('Upload sukses (disimpan di browser).');
+      document.getElementById('upTitle').value=''; document.getElementById('upDesc').value=''; document.getElementById('upPrice').value=''; document.getElementById('upFile').value='';
+    }
+  };
+  reader.readAsDataURL(primary);
+});
+
+/* reset demo */
+document.getElementById('btnResetData').addEventListener('click', ()=>{
+  if(!confirm('Reset semua data demo?')) return;
+  localStorage.clear(); seedIfEmpty(); items = JSON.parse(localStorage.getItem(K_ITEMS)); users = JSON.parse(localStorage.getItem(K_USERS));
+  renderItems(); renderHeader(); toast('Reset complete.');
+});
+
+/* --------------------------
+  Auth: login, register, guest
+---------------------------*/
+function openAuthModal(){ document.getElementById('modalAuth').classList.remove('hidden'); showTab('login'); }
+function closeAuthModal(){ document.getElementById('modalAuth').classList.add('hidden'); }
+document.getElementById('openAuth').addEventListener('click', openAuthModal);
+document.getElementById('openAuthTop').addEventListener('click', openAuthModal);
+document.getElementById('openAuthTop2').addEventListener('click', openAuthModal);
+document.getElementById('closeAuth').addEventListener('click', closeAuthModal);
+
+function showTab(k){
+  document.getElementById('modalTitle').textContent = (k==='login')? 'Login' : 'Register';
+  document.getElementById('loginPanel').classList.toggle('hidden', k!=='login');
+  document.getElementById('regPanel').classList.toggle('hidden', k!=='reg');
+}
+document.getElementById('tabLogin').addEventListener('click', ()=> showTab('login'));
+document.getElementById('tabReg').addEventListener('click', ()=> showTab('reg'));
+
+/* login */
+document.getElementById('btnLogin').addEventListener('click', ()=>{
+  const u = document.getElementById('liUser').value.trim();
+  const p = document.getElementById('liPass').value.trim();
+  if(!u) return alert('Isi username');
+  users = JSON.parse(localStorage.getItem(K_USERS) || '[]');
+  const found = users.find(x=>x.username===u && x.pass===p);
+  if(found){ setCurrent({username:found.username, display:found.display||found.username, email:found.email, photo:found.photo, bio:found.bio, balance:found.balance||0}); closeAuthModal(); toast('Login sukses.'); }
+  else alert('User tidak ditemukkan / password salah (pakai demo/demo)');
+});
+
+/* guest quick */
+document.getElementById('btnGuestModal').addEventListener('click', ()=>{
+  const session = {username:'guest_'+Math.floor(Math.random()*9999), display:'Guest', email:'', photo:'https://picsum.photos/seed/guest/'+Math.floor(Math.random()*999)};
+  setCurrent(session); closeAuthModal(); toast('Masuk sebagai guest');
+});
+
+/* register */
+document.getElementById('btnReg').addEventListener('click', ()=>{
+  const u = document.getElementById('rgUser').value.trim();
+  const em = document.getElementById('rgEmail').value.trim();
+  const p = document.getElementById('rgPass').value.trim();
+  if(!u || !p) return alert('username & password wajib');
+  users = JSON.parse(localStorage.getItem(K_USERS) || '[]');
+  if(users.find(x=>x.username===u)) return alert('username sudah ada');
+  users.push({username:u, email:em, pass:p, display:u, photo:'', bio:'', balance:0});
+  localStorage.setItem(K_USERS, JSON.stringify(users));
+  alert('Registrasi sukses. Silakan login.');
+  showTab('login');
+});
+
+/* quick guest header */
+document.getElementById('quickGuest').addEventListener('click', ()=>{
+  const session = {username:'guest_'+Math.floor(Math.random()*9999), display:'Guest', email:'', photo:'https://picsum.photos/seed/guest/'+Math.floor(Math.random()*999)};
+  setCurrent(session); toast('Masuk sebagai guest');
+});
+
+/* --------------------------
+  Purchases: confirm & history
+---------------------------*/
+function openPurchases(){
+  const modal = document.getElementById('modalPurch');
+  const list = document.getElementById('purchasesList');
+  list.innerHTML = '';
+  const all = JSON.parse(localStorage.getItem(K_PUR) || '[]');
+  if(!all.length) list.innerHTML = '<div class="muted">Belum ada pembelian</div>';
+  all.slice().reverse().forEach(p=>{
+    const item = items.find(i=>i.id===p.itemId) || {title:'(hilang)', thumb:''};
+    const el = document.createElement('div'); el.className='p-3 bg-white rounded-lg flex justify-between items-center';
+    el.innerHTML = `<div class="flex gap-3 items-center"><img src="${item.thumb||''}" class="w-20 h-12 object-cover rounded-md"> <div><div class="font-semibold">${item.title}</div><div class="muted text-sm">oleh ${item.author} • IDR ${p.amount}</div></div></div><div class="text-sm muted">${new Date(p.at).toLocaleString()} • ${p.status}</div>`;
+    list.appendChild(el);
+  });
+  modal.classList.remove('hidden');
+}
+document.getElementById('closePurch').addEventListener('click', ()=> document.getElementById('modalPurch').classList.add('hidden'));
+
+/* When user bought: we put pending in ms_pending at preview & ask them to confirm by "simulate transfer" (here we add confirm UI via prompt) */
+function confirmPending(){
+  const pending = JSON.parse(localStorage.getItem('ms_pending') || 'null');
+  if(!pending) return alert('Tidak ada pembelian pending. Klik Beli di item dulu.');
+  const name = prompt('Nama pengirim (untuk konfirmasi transfer):');
+  const rekening = prompt('No. Rekening pengirim:');
+  if(!name || !rekening) return alert('Batal. Isi data lengkap.');
+  const pur = JSON.parse(localStorage.getItem(K_PUR) || '[]');
+  pur.push({id:uid(), itemId:pending.itemId, buyer:pending.buyer, name, rekening, amount:pending.amount, at:Date.now(), status:'confirmed'});
+  localStorage.setItem(K_PUR, JSON.stringify(pur));
+  localStorage.removeItem('ms_pending');
+  alert('Konfirmasi berhasil dikirim. Untuk demo, dianggap sukses.');
+  openPurchases();
+}
+
+/* simple button to confirm pending (we'll attach to header search area) */
+const confirmBtn = document.createElement('button');
+confirmBtn.className = 'px-3 py-1 rounded-md border';
+confirmBtn.textContent = 'Konfirmasi Pembayaran';
+confirmBtn.addEventListener('click', confirmPending);
+document.getElementById('homeSearch').insertAdjacentElement('afterend', confirmBtn);
+
+/* open purchases via nav */
+document.getElementById('openAuthTop2').addEventListener('click', openAuthModal);
+
+/* --------------------------
+  Showcase: submit + render
+---------------------------*/
+function renderShowcase(){
+  const arr = JSON.parse(localStorage.getItem(K_SHOW) || '[]');
+  const grid = document.getElementById('showcaseGrid');
+  grid.innerHTML = '';
+  if(!arr.length) grid.innerHTML = '<div class="muted">Belum ada showcase — jadi yang pertama!</div>';
+  arr.slice().reverse().forEach(s=>{
+    const el = document.createElement('div'); el.className='bg-white rounded-2xl p-4';
+    el.innerHTML = `<div class="font-semibold">${s.title}</div><div class="muted text-sm">${s.author}</div><div class="mt-2">${s.desc}</div>${s.url? `<div class="mt-2"><a href="${s.url}" target="_blank" class="text-blue-600 underline text-sm">Open</a></div>`:''}`;
+    grid.appendChild(el);
+  });
+}
+renderShowcase();
+
+document.getElementById('openShowAdd').addEventListener('click', ()=> document.getElementById('modalShowAdd').classList.remove('hidden'));
+document.getElementById('closeShowAdd').addEventListener('click', ()=> document.getElementById('modalShowAdd').classList.add('hidden'));
+document.getElementById('btnShowSubmit').addEventListener('click', ()=>{
+  const t = document.getElementById('showTitle').value.trim();
+  const a = document.getElementById('showAuthor').value.trim() || (getCurrent()? getCurrent().display || getCurrent().username : 'Anonymous');
+  const d = document.getElementById('showDesc').value.trim();
+  const u = document.getElementById('showUrl').value.trim();
+  if(!t || !d) return alert('Judul & deskripsi wajib.');
+  const arr = JSON.parse(localStorage.getItem(K_SHOW) || '[]');
+  arr.push({id:uid(), title:t, author:a, desc:d, url:u, at:Date.now()});
+  localStorage.setItem(K_SHOW, JSON.stringify(arr));
+  document.getElementById('modalShowAdd').classList.add('hidden');
+  document.getElementById('showTitle').value=''; document.getElementById('showDesc').value=''; document.getElementById('showUrl').value='';
+  renderShowcase(); toast('Showcase submitted');
+});
+
+/* --------------------------
+  Profile modal (basic)
+---------------------------*/
+function openProfileModal(){
+  const cur = getCurrent();
+  if(!cur) return alert('Login dulu');
+  const name = prompt('Display name:', cur.display || cur.username);
+  if(name !== null){
+    // update user
+    users = JSON.parse(localStorage.getItem(K_USERS) || '[]');
+    const u = users.find(x=>x.username === cur.username);
+    if(u){ u.display = name; localStorage.setItem(K_USERS, JSON.stringify(users)); setCurrent({...cur, display:name}); toast('Profil updated'); }
+  }
+}
+
+/* --------------------------
+  Small UX bits: nav anchors, search, sorting, etc.
+---------------------------*/
+document.getElementById('btnExplore').addEventListener('click', ()=> location.hash = '#marketplace');
+document.getElementById('btnShowcase').addEventListener('click', ()=> location.hash = '#showcase');
+document.getElementById('btnUploadNav').addEventListener('click', ()=> location.hash = '#upload');
+
+document.getElementById('homeSearchBtn').addEventListener('click', ()=> renderItems());
+document.getElementById('homeSearch').addEventListener('keyup', (e)=> { if(e.key==='Enter') renderItems(); });
+document.getElementById('homeCat').addEventListener('change', ()=> renderItems());
+document.getElementById('homeSort').addEventListener('change', ()=> renderItems());
+
+/* ESC to close modals */
+window.addEventListener('keydown', (e)=> {
+  if(e.key === 'Escape'){
+    document.getElementById('modalAuth').classList.add('hidden');
+    document.getElementById('modalPurch').classList.add('hidden');
+    document.getElementById('modalShowAdd').classList.add('hidden');
+  }
+});
+
+/* init */
+renderHeader();
+renderUserBalance();
+renderItems();
+renderShowcase();
+
+/* tiny: if url hash present, scroll to section smoothly */
+if(location.hash) setTimeout(()=>{ const el = document.querySelector(location.hash); if(el) el.scrollIntoView({behavior:'smooth'}); }, 200);
+</script>
+</body>
+</html>
